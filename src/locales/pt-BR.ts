@@ -71,6 +71,7 @@ const ptBR: Messages = {
   "diff.unchanged.other": "⋯ {count} linhas inalteradas",
 
   // Errors shown to the user
+  "error.cliNotFound": "CLI do Claude Code não encontrada. Defina o caminho nas configurações do Claude Studio.",
   "error.noResult": "O Claude não retornou um resultado.",
   "error.claudeError": "O Claude retornou um erro.",
   "error.turnLimit": "Limite de turnos desta ação atingido.",

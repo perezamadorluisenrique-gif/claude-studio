@@ -71,6 +71,7 @@ const zh: Messages = {
   "diff.unchanged.other": "⋯ {count} 行未更改",
 
   // Errors shown to the user
+  "error.cliNotFound": "未找到 Claude Code CLI。请在 Claude Studio 设置中指定其路径。",
   "error.noResult": "Claude 没有返回结果。",
   "error.claudeError": "Claude 返回了错误。",
   "error.turnLimit": "已达到此操作的轮次上限。",

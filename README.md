@@ -4,7 +4,7 @@ Notion-style AI inside Obsidian, powered by your local **Claude Code CLI**. It u
 
 Desktop only. It needs the [Claude Code CLI](https://docs.claude.com/en/docs/claude-code) installed and logged in.
 
-**Interface languages:** English, 简体中文, 日本語, 한국어, Español, Deutsch, Français, Português (Brasil) and Русский, following Obsidian's language setting. A translation that reads wrong? [Open an issue](https://github.com/perezamadorluisenrique-gif/claude-studio/issues/new/choose) with the text and what it should say.
+**Interface languages:** English, 简体中文, 日本語, 한국어, Español, Deutsch, Français, Português (Brasil), Русский and Italiano, following Obsidian's language setting. A translation that reads wrong? [Open an issue](https://github.com/perezamadorluisenrique-gif/claude-studio/issues/new/choose) with the text and what it should say.
 
 ## What it does
 

@@ -48,7 +48,7 @@ test('resolveLocale accepts our codes only, ignoring case', () => {
 	assert.equal(resolveLocale('pt-BR'), 'pt-BR');
 	assert.equal(resolveLocale('PT-br'), 'pt-BR');
 	assert.equal(resolveLocale(' zh '), 'zh');
-	for (const other of ['zh-TW', 'pt', 'en-GB', 'it', '', null, undefined]) assert.equal(resolveLocale(other), null);
+	for (const other of ['zh-TW', 'pt', 'en-GB', 'nl', '', null, undefined]) assert.equal(resolveLocale(other), null);
 });
 
 test('detectLocale falls back to English and survives a failing lookup', () => {

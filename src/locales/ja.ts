@@ -71,6 +71,7 @@ const ja: Messages = {
   "diff.unchanged.other": "⋯ 変更なし {count} 行",
 
   // Errors shown to the user
+  "error.cliNotFound": "Claude Code CLI が見つかりません。Claude Studio の設定でパスを指定してください。",
   "error.noResult": "Claude から結果が返されませんでした。",
   "error.claudeError": "Claude がエラーを返しました。",
   "error.turnLimit": "このアクションのターン数の上限に達しました。",

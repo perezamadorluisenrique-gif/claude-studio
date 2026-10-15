@@ -71,6 +71,7 @@ const de: Messages = {
   "diff.unchanged.other": "⋯ {count} unveränderte Zeilen",
 
   // Errors shown to the user
+  "error.cliNotFound": "Claude Code CLI nicht gefunden. Lege den Pfad in den Claude-Studio-Einstellungen fest.",
   "error.noResult": "Claude hat kein Ergebnis geliefert.",
   "error.claudeError": "Claude hat einen Fehler gemeldet.",
   "error.turnLimit": "Das Rundenlimit für diese Aktion wurde erreicht.",

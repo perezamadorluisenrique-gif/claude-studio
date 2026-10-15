@@ -66,6 +66,7 @@ const es: Messages = {
   "diff.unchanged.one": "⋯ 1 línea sin cambios",
   "diff.unchanged.other": "⋯ {count} líneas sin cambios",
 
+  "error.cliNotFound": "No se encontró la CLI de Claude Code. Indica su ruta en los ajustes de Claude Studio.",
   "error.noResult": "Claude no devolvió ningún resultado.",
   "error.claudeError": "Claude devolvió un error.",
   "error.turnLimit": "Se alcanzó el límite de turnos de esta acción.",
