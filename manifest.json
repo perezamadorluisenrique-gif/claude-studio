@@ -1,0 +1,10 @@
+{
+  "id": "claude-studio",
+  "name": "Claude Studio",
+  "version": "0.1.0",
+  "minAppVersion": "1.7.2",
+  "description": "Notion-style AI writing, chat and vault tools powered by your local Claude Code CLI.",
+  "author": "Siulved54",
+  "authorUrl": "https://github.com/perezamadorluisenrique-gif",
+  "isDesktopOnly": true
+}
