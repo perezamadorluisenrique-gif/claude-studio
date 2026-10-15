@@ -1,4 +1,5 @@
 import { App, Component, MarkdownRenderer, Modal, Notice, setIcon } from "obsidian";
+import { t } from "../i18n";
 import type ClaudeStudio from "../main";
 import type { RunSpec } from "../core";
 import type { RunHandle, RunResult } from "../runner";
@@ -79,10 +80,10 @@ export class ResultModal extends Modal {
 
   private renderButtons() {
     this.buttons.empty();
-    const copy = this.buttons.createEl("button", { text: "Copy" });
+    const copy = this.buttons.createEl("button", { text: t("common.copy") });
     copy.onclick = () => {
       void navigator.clipboard.writeText(this.text);
-      new Notice("Copied");
+      new Notice(t("common.copied"));
     };
     for (const a of this.opts.actions) {
       const b = this.buttons.createEl("button", { text: a.label, cls: a.cta ? "mod-cta" : "" });

@@ -1,4 +1,5 @@
 import { ICON } from "../icon";
+import { t } from "../i18n";
 import { Component, ItemView, Keymap, MarkdownRenderer, MarkdownView, Menu, Notice, WorkspaceLeaf, normalizePath, setIcon } from "obsidian";
 import * as path from "path";
 import type ClaudeStudio from "../main";
@@ -53,7 +54,7 @@ export class ChatStore {
   }
 }
 
-const SUGGESTIONS = ["¿Qué tengo pendiente en mis proyectos?", "Resume lo que escribí esta semana", "¿Qué notas hablan de "];
+const SUGGESTIONS = ["chat.suggestion1", "chat.suggestion2", "chat.suggestion3"] as const;
 
 export class ChatView extends ItemView {
   private chat!: Chat;
@@ -105,8 +106,8 @@ export class ChatView extends ItemView {
       setIcon(b, icon);
       b.onclick = fn;
     };
-    iconBtn("history", "Run history", () => void this.plugin.openHistory());
-    iconBtn("square-pen", "New chat", () => this.newChat());
+    iconBtn("history", t("chat.history"), () => void this.plugin.openHistory());
+    iconBtn("square-pen", t("chat.new"), () => this.newChat());
 
     this.list = root.createDiv({ cls: "cs-chat-list" });
     this.list.addEventListener("click", (e) => this.onLinkClick(e));
@@ -119,7 +120,7 @@ export class ChatView extends ItemView {
       this.renderNoteChip();
     };
     const row = composer.createDiv({ cls: "cs-composer-row" });
-    this.input = row.createEl("textarea", { attr: { rows: "1", placeholder: "Ask about your notes…" } });
+    this.input = row.createEl("textarea", { attr: { rows: "1", placeholder: t("chat.placeholder") } });
     this.input.addEventListener("input", () => this.autosize());
     this.input.addEventListener("keydown", (e) => {
       if (e.key === "Enter" && !e.shiftKey && !e.isComposing) {
@@ -127,7 +128,7 @@ export class ChatView extends ItemView {
         this.submit();
       }
     });
-    this.sendBtn = row.createEl("button", { cls: "cs-send", attr: { "aria-label": "Send" } });
+    this.sendBtn = row.createEl("button", { cls: "cs-send", attr: { "aria-label": t("chat.send") } });
     this.sendBtn.onclick = () => (this.handle ? this.handle.cancel() : this.submit());
 
     this.registerEvent(this.app.workspace.on("active-leaf-change", () => this.renderNoteChip()));
@@ -153,13 +154,13 @@ export class ChatView extends ItemView {
 
   private renderHead() {
     this.titleEl.empty();
-    this.titleEl.createSpan({ text: this.chat.title || "New chat" });
+    this.titleEl.createSpan({ text: this.chat.title || t("chat.new") });
     setIcon(this.titleEl.createSpan({ cls: "cs-chev" }), "chevron-down");
     const n = this.siblings().length;
     this.scopeBtn.empty();
     setIcon(this.scopeBtn.createSpan(), n && this.chat.crossVault ? "library" : "book");
     this.scopeBtn.createSpan({ text: n && this.chat.crossVault ? `${this.plugin.core.vaultName()} + ${n}` : this.plugin.core.vaultName() });
-    this.scopeBtn.setAttr("aria-label", n ? "Toggle searching sibling vaults" : "Add sibling vaults in settings");
+    this.scopeBtn.setAttr("aria-label", n ? t("chat.toggleSiblings") : t("chat.addSiblings"));
     this.scopeBtn.toggleClass("is-on", !!n && this.chat.crossVault);
   }
 
@@ -182,7 +183,7 @@ export class ChatView extends ItemView {
     this.sendBtn.empty();
     setIcon(this.sendBtn, this.handle ? "square" : "arrow-up");
     this.sendBtn.toggleClass("is-running", !!this.handle);
-    this.sendBtn.setAttr("aria-label", this.handle ? "Stop" : "Send");
+    this.sendBtn.setAttr("aria-label", this.handle ? t("chat.stop") : t("chat.send"));
   }
 
   newChat() {
@@ -210,10 +211,11 @@ export class ChatView extends ItemView {
   private renderEmpty() {
     const e = this.list.createDiv({ cls: "cs-chat-empty" });
     setIcon(e.createDiv({ cls: "cs-chat-logo" }), ICON);
-    e.createDiv({ cls: "cs-chat-hello", text: "Ask about your vault" });
-    e.createDiv({ cls: "cs-chat-sub", text: "Claude reads your notes (never edits them) and cites what it used." });
+    e.createDiv({ cls: "cs-chat-hello", text: t("chat.helloTitle") });
+    e.createDiv({ cls: "cs-chat-sub", text: t("chat.helloSub") });
     const sug = e.createDiv({ cls: "cs-suggestions" });
-    for (const s of SUGGESTIONS) {
+    for (const key of SUGGESTIONS) {
+      const s = t(key);
       const b = sug.createEl("button", { cls: "cs-suggestion", text: s.endsWith(" ") ? s + "…" : s });
       b.onclick = () => {
         this.input.value = s;
@@ -225,12 +227,12 @@ export class ChatView extends ItemView {
 
   private sessionMenu(e: MouseEvent) {
     const menu = new Menu();
-    menu.addItem((i) => i.setTitle("New chat").setIcon("square-pen").onClick(() => this.newChat()));
+    menu.addItem((i) => i.setTitle(t("chat.new")).setIcon("square-pen").onClick(() => this.newChat()));
     menu.addSeparator();
     for (const c of this.plugin.chats.chats.slice(0, 20))
       menu.addItem((i) =>
         i
-          .setTitle(`${c.title || "Untitled"} · ${clock(c.updated).fromNow()}`)
+          .setTitle(`${c.title || t("chat.untitled")} · ${clock(c.updated).fromNow()}`)
           .setChecked(c.id === this.chat.id)
           .onClick(() => this.loadChat(c)),
       );
@@ -267,18 +269,18 @@ export class ChatView extends ItemView {
       setIcon(b, icon);
       b.onclick = fn;
     };
-    btn("copy", "Copy", () => {
+    btn("copy", t("common.copy"), () => {
       void navigator.clipboard.writeText(m.text);
-      new Notice("Copied");
+      new Notice(t("common.copied"));
     });
-    btn("text-cursor-input", "Insert at cursor", () => this.insertAtCursor(m.text));
-    btn("file-plus", "Save as note", () => void this.saveAsNote(m.text));
+    btn("text-cursor-input", t("chat.insertAtCursor"), () => this.insertAtCursor(m.text));
+    btn("file-plus", t("chat.saveAsNote"), () => void this.saveAsNote(m.text));
   }
 
   private insertAtCursor(text: string) {
     const leaf = this.plugin.lastMarkdownLeaf();
     const view = leaf?.view instanceof MarkdownView ? leaf.view : null;
-    if (!view) return new Notice("No open note to insert into.");
+    if (!view) return new Notice(t("chat.noNoteToInsert"));
     view.editor.replaceSelection(text);
     this.app.workspace.setActiveLeaf(leaf!, { focus: true });
   }
@@ -314,7 +316,7 @@ export class ChatView extends ItemView {
 
   /** Called by the palette and the API: fill and send. */
   send(text: string, g?: Gathered) {
-    if (this.handle) return new Notice("Claude is still answering.");
+    if (this.handle) return new Notice(t("chat.stillAnswering"));
     this.input.value = text;
     if (g?.chips.some((c) => c.kind === "selection" && c.on)) {
       const sel = g.chips.find((c) => c.kind === "selection")!.text;
@@ -358,7 +360,7 @@ export class ChatView extends ItemView {
       {
         onInit: (id) => (this.chat.sessionId = id),
         onTool: (name, summary) => {
-          const label = `${name === "Read" ? "Reading" : name === "Grep" ? "Searching" : name === "Glob" ? "Listing" : name} ${summary}`.trim();
+          const label = (name === "Read" ? t("chat.toolReading", { summary }) : name === "Grep" ? t("chat.toolSearching", { summary }) : name === "Glob" ? t("chat.toolListing", { summary }) : `${name} ${summary}`).trim();
           reply.tools!.push(label);
           ui.toolsEl.createSpan({ cls: "cs-tool", text: label });
         },
@@ -379,7 +381,7 @@ export class ChatView extends ItemView {
         },
         onError: (m) => {
           reply.text = reply.text ? `${reply.text}\n\n_${m}_` : m;
-          reply.error = !reply.text || m !== "Stopped.";
+          reply.error = !reply.text || m !== t("error.stopped");
         },
         onClose: () => {
           if (timer != null) window.clearTimeout(timer);
@@ -387,7 +389,7 @@ export class ChatView extends ItemView {
           this.chat.messages.push(reply);
           this.chat.updated = Date.now();
           ui.body.parentElement?.toggleClass("is-error", !!reply.error);
-          this.renderMarkdown(ui.body, reply.text || "_No answer._");
+          this.renderMarkdown(ui.body, reply.text || `_${t("chat.noAnswer")}_`);
           if (!reply.error) this.renderFooter(ui.footer, reply);
           this.renderSend();
           this.stickToBottom();

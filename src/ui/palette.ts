@@ -1,4 +1,5 @@
 import { ICON } from "../icon";
+import { t } from "../i18n";
 import { App, Modal, prepareFuzzySearch, setIcon } from "obsidian";
 import type ClaudeStudio from "../main";
 import type { Action } from "../library";
@@ -34,7 +35,7 @@ export class Palette extends Modal {
     this.containerEl.addClass("cs-palette-container");
     const top = this.contentEl.createDiv({ cls: "cs-palette-top" });
     setIcon(top.createSpan({ cls: "cs-palette-logo" }), ICON);
-    this.input = top.createEl("input", { type: "text", placeholder: "Ask Claude, or pick an action…", value: this.initial });
+    this.input = top.createEl("input", { type: "text", placeholder: t("palette.placeholder"), value: this.initial });
     this.input.addEventListener("input", () => {
       this.sel = 0;
       this.renderRows();
@@ -43,10 +44,10 @@ export class Palette extends Modal {
     this.chipsEl = this.contentEl.createDiv({ cls: "cs-chips" });
     this.list = this.contentEl.createDiv({ cls: "cs-palette-list" });
     const foot = this.contentEl.createDiv({ cls: "cs-palette-foot" });
-    for (const [k, t] of [["↵", "run"], ["↑↓", "move"], ["Tab", "ask the vault"], ["esc", "close"]]) {
+    for (const [k, hint] of [["↵", t("palette.hintRun")], ["↑↓", t("palette.hintMove")], ["Tab", t("palette.hintAskVault")], ["esc", t("palette.hintClose")]]) {
       const h = foot.createSpan({ cls: "cs-hint" });
       h.createSpan({ cls: "cs-kbd", text: k });
-      h.appendText(t);
+      h.appendText(hint);
     }
     foot.createSpan({ cls: "cs-palette-model", text: `${this.plugin.settings.fastModel} · ${this.plugin.settings.writeModel}` });
     this.input.focus();
@@ -65,7 +66,7 @@ export class Palette extends Modal {
   private renderChips() {
     this.chipsEl.empty();
     if (!this.g) return;
-    this.chipsEl.createSpan({ cls: "cs-chips-label", text: "Context" });
+    this.chipsEl.createSpan({ cls: "cs-chips-label", text: t("palette.context") });
     for (const c of this.g.chips) {
       const chip = this.chipsEl.createEl("button", { cls: `cs-chip cs-chip-${c.kind}${c.on ? " is-on" : ""}`, attr: { "aria-label": c.path ?? c.label } });
       setIcon(chip.createSpan({ cls: "cs-chip-icon" }), c.icon);
@@ -89,12 +90,12 @@ export class Palette extends Modal {
     const actions = this.plugin.library.actions.filter((a) => this.applicable(a));
     const rows: Row[] = [];
     if (!q) {
-      for (const r of this.plugin.settings.recentPrompts.slice(0, 4)) rows.push({ kind: "recent", label: r, icon: "history", hint: "Recent" });
+      for (const r of this.plugin.settings.recentPrompts.slice(0, 4)) rows.push({ kind: "recent", label: r, icon: "history", hint: t("palette.recent") });
       for (const a of actions) rows.push({ kind: "action", action: a, label: a.name, icon: a.icon, hint: a.group });
       return rows;
     }
-    rows.push({ kind: "free", label: q, icon: ICON, hint: this.hasSelection ? "Edit selection" : "Write at cursor" });
-    rows.push({ kind: "vault", label: q, icon: "message-circle-question", hint: "Ask the vault" });
+    rows.push({ kind: "free", label: q, icon: ICON, hint: this.hasSelection ? t("palette.editSelection") : t("palette.writeAtCursor") });
+    rows.push({ kind: "vault", label: q, icon: "message-circle-question", hint: t("palette.askVault") });
     const fuzzy = prepareFuzzySearch(q);
     const matched = actions
       .map((a) => ({ a, m: fuzzy(a.name) }))
@@ -103,7 +104,7 @@ export class Palette extends Modal {
       .map((x) => x.a);
     for (const a of matched) rows.push({ kind: "action", action: a, label: a.name, icon: a.icon, hint: a.group });
     for (const a of actions)
-      if (!matched.includes(a) && a.prompt.includes("{{input}}")) rows.push({ kind: "action", action: a, label: a.name, icon: a.icon, hint: "With your text" });
+      if (!matched.includes(a) && a.prompt.includes("{{input}}")) rows.push({ kind: "action", action: a, label: a.name, icon: a.icon, hint: t("palette.withYourText") });
     return rows;
   }
 
@@ -119,14 +120,14 @@ export class Palette extends Modal {
       const el = this.list.createDiv({ cls: `cs-row cs-row-${r.kind}${i === this.sel ? " is-selected" : ""}` });
       setIcon(el.createSpan({ cls: "cs-row-icon" }), r.icon);
       const label = el.createSpan({ cls: "cs-row-label" });
-      if (r.kind === "free") label.appendText("Ask Claude: ");
-      if (r.kind === "vault") label.appendText("Ask the vault: ");
+      if (r.kind === "free") label.appendText(t("palette.askClaudePrefix"));
+      if (r.kind === "vault") label.appendText(t("palette.askVaultPrefix"));
       label.createSpan({ cls: r.kind === "action" ? "" : "cs-row-query", text: r.label });
       if (r.kind !== "action") el.createSpan({ cls: "cs-row-hint", text: r.hint });
       el.onmouseenter = () => this.select(i);
       el.onclick = () => this.exec(r);
     });
-    if (!this.rows.length) this.list.createDiv({ cls: "cs-empty", text: "Type to ask Claude anything." });
+    if (!this.rows.length) this.list.createDiv({ cls: "cs-empty", text: t("palette.empty") });
   }
 
   private select(i: number) {

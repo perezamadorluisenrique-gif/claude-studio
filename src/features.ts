@@ -1,4 +1,5 @@
 import { App, Modal, Notice, Setting, TFile, normalizePath, parseYaml, setIcon } from "obsidian";
+import { t } from "./i18n";
 import type ClaudeStudio from "./main";
 import { findHub } from "./context";
 import { DiffModal } from "./ui/diff";
@@ -15,7 +16,7 @@ const catName = (c: string) => c.replace(/^\[\[|\]\]$/g, "").split("|")[0];
 
 export async function suggestTags(plugin: ClaudeStudio, file: TFile) {
   const { app } = plugin;
-  if (plugin.core.isExcluded(file)) return new Notice("This note is on the never-send list.");
+  if (plugin.core.isExcluded(file)) return new Notice(t("notice.neverSend"));
   const vocab = plugin.ctx.tagVocabulary();
   const categories = app.vault
     .getMarkdownFiles()
@@ -26,7 +27,7 @@ export async function suggestTags(plugin: ClaudeStudio, file: TFile) {
   const curCats = fmList(fm.categories).map(catName);
   const body = truncate(stripFrontmatter(await app.vault.cachedRead(file)), 8000);
 
-  const notice = new Notice("Reading the note…", 0);
+  const notice = new Notice(t("tags.reading"), 0);
   let out: string;
   try {
     out = await plugin.core.complete({
@@ -82,12 +83,12 @@ class TagsModal extends Modal {
     this.modalEl.addClass("cs-modal", "cs-tags-modal");
     const head = this.titleEl.createDiv({ cls: "cs-modal-title" });
     setIcon(head.createSpan({ cls: "cs-card-icon" }), "tags");
-    head.createSpan({ text: `Tags · ${this.file.basename}` });
-    this.section("Tags", this.curTags, this.sugTags, this.pickTags, "#");
-    this.section("Categories", this.curCats, this.sugCats, this.pickCats, "");
+    head.createSpan({ text: t("tags.title", { name: this.file.basename }) });
+    this.section(t("tags.tags"), this.curTags, this.sugTags, this.pickTags, "#");
+    this.section(t("tags.categories"), this.curCats, this.sugCats, this.pickCats, "");
     const btns = this.contentEl.createDiv({ cls: "cs-result-btns" });
-    btns.createEl("button", { text: "Cancel" }).onclick = () => this.close();
-    const apply = btns.createEl("button", { cls: "mod-cta", text: "Add selected" });
+    btns.createEl("button", { text: t("common.cancel") }).onclick = () => this.close();
+    const apply = btns.createEl("button", { cls: "mod-cta", text: t("tags.addSelected") });
     apply.onclick = () => void this.apply();
   }
 
@@ -105,7 +106,7 @@ class TagsModal extends Modal {
         chip.toggleClass("is-on", picked.has(t));
       };
     }
-    if (!current.length && !fresh.length) row.createSpan({ cls: "cs-empty", text: "Nothing to suggest." });
+    if (!current.length && !fresh.length) row.createSpan({ cls: "cs-empty", text: t("tags.nothing") });
   }
 
   private async apply() {
@@ -132,15 +133,15 @@ class TagsModal extends Modal {
 export async function extractToNote(plugin: ClaudeStudio) {
   const note = plugin.actions.active();
   const sel = note?.editor.getSelection() ?? "";
-  if (!note || !sel.trim()) return new Notice("Select the text to extract first.");
-  if (plugin.core.isExcluded(note.file)) return new Notice("This note is on the never-send list.");
+  if (!note || !sel.trim()) return new Notice(t("extract.selectFirst"));
+  if (plugin.core.isExcluded(note.file)) return new Notice(t("notice.neverSend"));
   const from = note.editor.getCursor("from");
   const to = note.editor.getCursor("to");
   const vocab = plugin.ctx.tagVocabulary();
 
   let title = "";
   let tags: string[] = [];
-  const notice = new Notice("Proposing a title…", 0);
+  const notice = new Notice(t("extract.proposing"), 0);
   try {
     const out = await plugin.core.complete({
       model: "fast",
@@ -169,7 +170,7 @@ ${truncate(sel, 6000)}
     const link = plugin.app.metadataCache.fileToLinktext(file, note.file.path);
     note.editor.replaceRange(`[[${link}]]`, from, to);
     await plugin.history.add({ action: "Extract to note", file: file.path, model: plugin.core.model("fast"), costUsd: 0, durationMs: 0, status: "applied", prompt: "", result: sel, before: "", after: await plugin.app.vault.read(file) });
-    new Notice(`Created ${file.basename}`);
+    new Notice(t("extract.created", { name: file.basename }));
   }).open();
 }
 
@@ -186,19 +187,19 @@ class ExtractModal extends Modal {
     this.modalEl.addClass("cs-modal");
     const head = this.titleEl.createDiv({ cls: "cs-modal-title" });
     setIcon(head.createSpan({ cls: "cs-card-icon" }), "file-output");
-    head.createSpan({ text: "Extract to note" });
-    new Setting(this.contentEl).setName("Title").addText((t) => {
+    head.createSpan({ text: t("extract.title") });
+    new Setting(this.contentEl).setName(t("extract.titleField")).addText((t) => {
       t.setValue(this.title).onChange((v) => (this.title = v));
       window.setTimeout(() => t.inputEl.select(), 20);
       t.inputEl.addEventListener("keydown", (e) => e.key === "Enter" && this.submit());
     });
-    new Setting(this.contentEl).setName("Tags").setDesc("Comma-separated").addText((t) => t.setValue(this.tags.join(", ")).onChange((v) => (this.tags = v.split(",").map((x) => x.trim()).filter(Boolean))));
+    new Setting(this.contentEl).setName(t("extract.tagsField")).setDesc(t("extract.commaSeparated")).addText((t) => t.setValue(this.tags.join(", ")).onChange((v) => (this.tags = v.split(",").map((x) => x.trim()).filter(Boolean))));
     const btns = this.contentEl.createDiv({ cls: "cs-result-btns" });
-    btns.createEl("button", { text: "Cancel" }).onclick = () => this.close();
-    btns.createEl("button", { cls: "mod-cta", text: "Create note" }).onclick = () => this.submit();
+    btns.createEl("button", { text: t("common.cancel") }).onclick = () => this.close();
+    btns.createEl("button", { cls: "mod-cta", text: t("extract.create") }).onclick = () => this.submit();
   }
   private submit() {
-    if (!this.title.trim()) return new Notice("Give the note a title.");
+    if (!this.title.trim()) return new Notice(t("extract.needTitle"));
     this.close();
     void this.done(this.title.trim(), this.tags);
   }
@@ -266,7 +267,7 @@ export async function weeklyRecap(plugin: ClaudeStudio, days = 7) {
     .sort((a, b) => b.stat.mtime - a.stat.mtime)
     .slice(0, 40);
   const tasks = dailies.flatMap((d) => openTasks(d.text));
-  if (!dailies.length && !touched.length) return new Notice(days === 1 ? "Nothing written today." : "Nothing written in the last week.");
+  if (!dailies.length && !touched.length) return new Notice(days === 1 ? t("recap.nothingToday") : t("recap.nothingWeek"));
   // The most recent edits carry an excerpt so "Hecho"/"En curso" have something real to draw on.
   const excerpts: string[] = [];
   for (const f of touched.slice(0, 12)) excerpts.push(`<edited_note name="${f.basename}">\n${truncate(stripFrontmatter(await app.vault.cachedRead(f)), 900)}\n</edited_note>`);
@@ -286,14 +287,14 @@ ${dailies.map((d) => `<daily date="${d.date}">\n${d.text}\n</daily>`).join("\n")
 
   const today = dailyFile(app, clock());
   new ResultModal(app, plugin, {
-    title: days === 1 ? "Daily recap" : "Weekly recap",
+    title: days === 1 ? t("recap.daily") : t("recap.weekly"),
     icon: "calendar-range",
     sourcePath: today?.path ?? "",
     spec: { prompt, model: "write", tools: [], persist: false, label: "Recap" },
     actions: [
-      ...(today ? [{ label: "Add to today's note", cta: true, run: (t: string) => appendTo(plugin, today, t, "Weekly recap") }] : []),
+      ...(today ? [{ label: t("recap.addToToday"), cta: true, run: (t: string) => appendTo(plugin, today, t, "Weekly recap") }] : []),
       {
-        label: "Save as note",
+        label: t("recap.saveAsNote"),
         run: async (t: string) => {
           const f = await plugin.actions.createNote(`Resumen semanal ${clock().format("YYYY-MM-DD")}`, t, null, ["journal"]);
           await app.workspace.getLeaf("tab").openFile(f);
@@ -308,7 +309,7 @@ ${dailies.map((d) => `<daily date="${d.date}">\n${d.text}\n</daily>`).join("\n")
 export async function carryOverTasks(plugin: ClaudeStudio) {
   const { app } = plugin;
   const today = dailyFile(app, clock());
-  if (!today) return new Notice("Create today's daily note first.");
+  if (!today) return new Notice(t("carry.createDaily"));
   const current = await plugin.actions.readCurrent(today);
   const seen = new Set(openTasks(current).map((t) => t.replace(/^[-*+]\s+\[ \]\s+/, "")));
   const carried: string[] = [];
@@ -323,9 +324,9 @@ export async function carryOverTasks(plugin: ClaudeStudio) {
       }
     }
   }
-  if (!carried.length) return new Notice("No open tasks to carry over.");
+  if (!carried.length) return new Notice(t("carry.none"));
   const after = current.replace(/\s*$/, "") + `\n\n## Pendientes arrastrados\n${carried.join("\n")}\n`;
-  if (!(await new DiffModal(app, { title: `Carry over · ${today.basename}`, before: current, after, applyLabel: "Add tasks" }).open_())) return;
+  if (!(await new DiffModal(app, { title: t("carry.title", { name: today.basename }), before: current, after, applyLabel: t("carry.apply")  }).open_())) return;
   await plugin.actions.applyWholeNote(today, after);
   await plugin.history.add({ action: "Carry over tasks", file: today.path, model: "", costUsd: 0, durationMs: 0, status: "applied", prompt: "", result: carried.join("\n"), before: current, after });
 }
@@ -335,7 +336,7 @@ export async function carryOverTasks(plugin: ClaudeStudio) {
 /* ------------------------------------------------------------------ */
 
 export function createBase(plugin: ClaudeStudio) {
-  new PromptModal(plugin.app, "Describe the table", "All notes tagged nlh edited this month, newest first", "table", (desc) => void generateBase(plugin, desc)).open();
+  new PromptModal(plugin.app, t("base.describeTitle"), t("base.placeholder"), "table", (desc) => void generateBase(plugin, desc)).open();
 }
 
 async function generateBase(plugin: ClaudeStudio, desc: string) {
@@ -367,7 +368,7 @@ ${exText}`;
       const parsed = parseYaml(clean) as { views?: unknown } | null;
       if (!parsed || !Array.isArray(parsed.views)) throw new Error("no views");
     } catch (e) {
-      return new Notice(`The generated base isn't valid YAML (${(e as Error).message}). Try again with a clearer description.`);
+      return new Notice(t("error.invalidBase", { error: (e as Error).message }));
     }
     const folder = normalizePath(plugin.settings.basesFolder);
     if (!app.vault.getAbstractFileByPath(folder)) await app.vault.createFolder(folder);
@@ -380,11 +381,11 @@ ${exText}`;
     else await app.workspace.getLeaf("tab").openFile(file);
   };
   new ResultModal(app, plugin, {
-    title: "New base",
+    title: t("base.title"),
     icon: "table",
     sourcePath: "",
     spec: { prompt, model: "write", tools: [], persist: false, label: "Create base" },
-    actions: [...(note ? [{ label: "Save and embed here", run: (t: string) => void save(t, true) }] : []), { label: "Save base", cta: true, run: (t: string) => void save(t, false) }],
+    actions: [...(note ? [{ label: t("base.saveEmbed"), run: (t: string) => void save(t, true) }] : []), { label: t("base.save"), cta: true, run: (t: string) => void save(t, false) }],
   }).open();
 }
 
@@ -400,13 +401,13 @@ function hubFor(plugin: ClaudeStudio, file: TFile): TFile | null {
 /** Turn the selection (or note) into a checklist appended to the project hub's pending section. */
 export async function checklistToHub(plugin: ClaudeStudio) {
   const note = plugin.actions.active();
-  if (!note) return new Notice("Open a note first.");
+  if (!note) return new Notice(t("notice.openNote"));
   const hub = hubFor(plugin, note.file);
-  if (!hub) return new Notice("This note isn't linked to a project hub.");
-  if (plugin.core.isExcluded(hub) || plugin.core.isExcluded(note.file)) return new Notice("A note involved is on the never-send list.");
+  if (!hub) return new Notice(t("hub.notLinked"));
+  if (plugin.core.isExcluded(hub) || plugin.core.isExcluded(note.file)) return new Notice(t("hub.involvedExcluded"));
   const source = note.editor.getSelection() || note.editor.getValue();
   const hubText = await plugin.actions.readCurrent(hub);
-  const notice = new Notice("Extracting tasks…", 0);
+  const notice = new Notice(t("hub.extracting"), 0);
   let list: string;
   try {
     list = await plugin.core.complete({
@@ -429,7 +430,7 @@ ${truncate(source, 12000)}
   }
   notice.hide();
   const items = list.split("\n").filter((l) => /^\s*[-*]\s+\[ \]/.test(l));
-  if (!items.length) return new Notice("No new tasks found.");
+  if (!items.length) return new Notice(t("hub.noTasks"));
   const block = `${items.join("\n")}\n_De [[${note.file.basename}]]_`;
   const heading = /^##\s+Pendientes\s*$/m;
   let after: string;
@@ -440,7 +441,7 @@ ${truncate(source, 12000)}
     const end = next < 0 ? hubText.length : start + next;
     after = hubText.slice(0, end).replace(/\s*$/, "") + "\n" + block + "\n\n" + hubText.slice(end).replace(/^\n+/, "");
   } else after = hubText.replace(/\s*$/, "") + `\n\n## Pendientes\n${block}\n`;
-  if (!(await new DiffModal(plugin.app, { title: `Checklist → ${hub.basename}`, before: hubText, after, applyLabel: "Add to hub" }).open_())) return;
+  if (!(await new DiffModal(plugin.app, { title: t("hub.title", { name: hub.basename }), before: hubText, after, applyLabel: t("hub.apply") }).open_())) return;
   await plugin.actions.applyWholeNote(hub, after);
   await plugin.history.add({ action: "Checklist to hub", file: hub.path, model: plugin.core.model("write"), costUsd: 0, durationMs: 0, status: "applied", prompt: "", result: items.join("\n"), before: hubText, after });
 }
@@ -449,9 +450,9 @@ ${truncate(source, 12000)}
 export async function projectStatus(plugin: ClaudeStudio) {
   const { app } = plugin;
   const file = plugin.actions.active()?.file ?? app.workspace.getActiveFile();
-  if (!file) return new Notice("Open a project note first.");
+  if (!file) return new Notice(t("hub.openProjectNote"));
   const hub = hubFor(plugin, file);
-  if (!hub) return new Notice("This note isn't linked to a project hub.");
+  if (!hub) return new Notice(t("hub.notLinked"));
   const links = app.metadataCache.resolvedLinks;
   const related = new Set<string>(Object.keys(links[hub.path] ?? {}));
   for (const [src, t] of Object.entries(links)) if (t[hub.path]) related.add(src);
@@ -476,11 +477,11 @@ ${tasks.join("\n") || "(none)"}
 </open_tasks>
 ${parts.join("\n")}`;
   new ResultModal(app, plugin, {
-    title: `Status · ${hub.basename}`,
+    title: t("hub.statusTitle", { name: hub.basename }),
     icon: "folder-kanban",
     sourcePath: hub.path,
     spec: { prompt, model: "write", tools: [], persist: false, label: "Project status" },
-    actions: [{ label: "Add to hub", cta: true, run: (t) => appendTo(plugin, hub, `## Estado ${clock().format("YYYY-MM-DD")}\n${t.replace(/^##\s+Estado\s*\n/, "")}`, "Project status") }],
+    actions: [{ label: t("hub.addToHub"), cta: true, run: (t) => appendTo(plugin, hub, `## Estado ${clock().format("YYYY-MM-DD")}\n${t.replace(/^##\s+Estado\s*\n/, "")}`, "Project status") }],
     onDone: (text, r) => void plugin.history.add({ action: "Project status", file: hub.path, model: plugin.core.model("write"), costUsd: r?.costUsd ?? 0, durationMs: r?.durationMs ?? 0, status: "shown", prompt, result: text }),
   }).open();
 }
@@ -517,7 +518,7 @@ export class PromptModal extends Modal {
       }
     });
     const btns = this.contentEl.createDiv({ cls: "cs-result-btns" });
-    btns.createEl("button", { cls: "mod-cta", text: "Generate" }).onclick = go;
+    btns.createEl("button", { cls: "mod-cta", text: t("common.generate") }).onclick = go;
   }
   onClose() {
     this.contentEl.empty();

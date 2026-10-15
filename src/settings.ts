@@ -1,4 +1,5 @@
 import { App, Notice, PluginSettingTab, Setting, type SettingDefinitionItem, type SettingGroupItem } from "obsidian";
+import { t } from "./i18n";
 import * as fs from "fs";
 import * as path from "path";
 import type ClaudeStudio from "./main";
@@ -130,100 +131,100 @@ export class StudioSettingTab extends PluginSettingTab {
         key,
         min: 0,
         defaultValue: DEFAULT_SETTINGS[key],
-        validate: (v: number) => (Number.isInteger(v) && v >= 0 ? undefined : "A whole number of 0 or more."),
+        validate: (v: number) => (Number.isInteger(v) && v >= 0 ? undefined : t("settings.wholeNumber")),
       },
     });
     const vaults = knownVaults(this.plugin.vaultPath());
     const vaultItems: SettingGroupItem[] = vaults.length
       ? vaults.map((v) => ({
           name: v.name,
-          desc: "Chat can search this vault (read-only) and answers with obsidian:// links to it.",
+          desc: t("settings.siblingDesc"),
           render: (setting: Setting) => {
-            setting.setName(v.name).setDesc("Chat can search this vault (read-only) and answers with obsidian:// links to it.");
-            setting.addToggle((t) =>
-              t.setValue(s.siblingVaults.includes(v.path)).onChange((on) => {
+            setting.setName(v.name).setDesc(t("settings.siblingDesc"));
+            setting.addToggle((tx) =>
+              tx.setValue(s.siblingVaults.includes(v.path)).onChange((on) => {
                 s.siblingVaults = on ? [...new Set([...s.siblingVaults, v.path])] : s.siblingVaults.filter((p) => p !== v.path);
                 void this.plugin.saveSettings();
               }),
             );
           },
         }))
-      : [{ name: "No other vaults registered in Obsidian." }];
+      : [{ name: t("settings.noOtherVaults") }];
 
     return [
       {
         type: "group",
-        heading: "Claude Code CLI",
+        heading: t("settings.cliHeading"),
         items: [
-          { name: "CLI path", desc: "Detected automatically. The npm shim is resolved to the native executable it launches.", aliases: ["claude", "detect", "test"], render: (setting: Setting) => this.cliPathRow(setting) },
+          { name: t("settings.cliPath"), desc: t("settings.cliPathDesc"), aliases: ["claude", "detect", "test"], render: (setting: Setting) => this.cliPathRow(setting) },
           {
-            name: "Use my subscription",
-            desc: "Remove ANTHROPIC_API_KEY from the CLI's environment so runs use your logged-in Claude plan.",
+            name: t("settings.subscription"),
+            desc: t("settings.subscriptionDesc"),
             control: { type: "toggle", key: "stripApiKey", defaultValue: DEFAULT_SETTINGS.stripApiKey },
           },
         ],
       },
       {
         type: "group",
-        heading: "Models",
+        heading: t("settings.modelsHeading"),
         items: [
-          model("Fast", "Selection edits, ghost text, tags, clippings. Actions refer to it as `fast`.", "fastModel"),
-          model("Write", "Whole-note work, recaps, Bases. Actions refer to it as `write`.", "writeModel"),
-          model("Chat", "Side panel conversations. Actions refer to it as `chat`.", "chatModel"),
+          model(t("settings.modelFast"), t("settings.modelFastDesc"), "fastModel"),
+          model(t("settings.modelWrite"), t("settings.modelWriteDesc"), "writeModel"),
+          model(t("settings.modelChat"), t("settings.modelChatDesc"), "chatModel"),
         ],
       },
       {
         type: "group",
-        heading: "Vault layout",
+        heading: t("settings.layoutHeading"),
         items: [
-          folder("Library folder", "Holds Actions/ and Profiles/ — every action and profile is a note you can edit.", "libraryFolder"),
-          folder("New notes folder", "Where Extract to note creates notes.", "notesFolder"),
-          folder("Project hubs folder", "Notes here are treated as project hubs and added as context to linked notes.", "hubFolder"),
-          folder("Bases folder", "Where generated .base files are saved.", "basesFolder"),
+          folder(t("settings.libraryFolder"), t("settings.libraryFolderDesc"), "libraryFolder"),
+          folder(t("settings.notesFolder"), t("settings.notesFolderDesc"), "notesFolder"),
+          folder(t("settings.hubFolder"), t("settings.hubFolderDesc"), "hubFolder"),
+          folder(t("settings.basesFolder"), t("settings.basesFolderDesc"), "basesFolder"),
         ],
       },
       {
         type: "group",
-        heading: "Privacy",
+        heading: t("settings.privacyHeading"),
         items: [
           {
-            name: "Never send these notes",
-            desc: "One per line: a note name, a path, or a folder ending in /. Enforced in the plugin and as CLI deny rules, including sibling vaults.",
+            name: t("settings.exclude"),
+            desc: t("settings.excludeDesc"),
             control: { type: "textarea", key: "exclude", rows: 5, defaultValue: DEFAULT_SETTINGS.exclude },
           },
           {
-            name: "Never send notes with these tags",
-            desc: "Comma-separated, without #.",
+            name: t("settings.excludeTags"),
+            desc: t("settings.excludeTagsDesc"),
             control: { type: "text", key: "excludeTags", defaultValue: DEFAULT_SETTINGS.excludeTags },
           },
         ],
       },
       {
         type: "group",
-        heading: "Context",
+        heading: t("settings.contextHeading"),
         items: [
-          num("Text around the cursor", "Characters sent when nothing is selected.", "contextChars"),
-          num("Linked notes", "How many outgoing links are offered as context chips.", "linkedNotes"),
-          num("Linked note excerpt", "Characters taken from each linked note.", "linkedNoteChars"),
+          num(t("settings.contextChars"), t("settings.contextCharsDesc"), "contextChars"),
+          num(t("settings.linkedNotes"), t("settings.linkedNotesDesc"), "linkedNotes"),
+          num(t("settings.linkedNoteChars"), t("settings.linkedNoteCharsDesc"), "linkedNoteChars"),
         ],
       },
-      { type: "group", heading: "Sibling vaults", items: vaultItems },
+      { type: "group", heading: t("settings.siblingHeading"), items: vaultItems },
       {
         type: "group",
-        heading: "Editor",
-        items: [{ name: "Selection toolbar", desc: "Show the floating action bar when you select text.", control: { type: "toggle", key: "selectionBubble", defaultValue: DEFAULT_SETTINGS.selectionBubble } }],
+        heading: t("settings.editorHeading"),
+        items: [{ name: t("settings.bubble"), desc: t("settings.bubbleDesc"), control: { type: "toggle", key: "selectionBubble", defaultValue: DEFAULT_SETTINGS.selectionBubble } }],
       },
       {
         type: "group",
-        heading: "Clippings",
+        heading: t("settings.clippingsHeading"),
         items: [
           {
-            name: "Summarize new clippings",
-            desc: "When a note appears in the clippings folder, write a short summary into a property. Off by default.",
+            name: t("settings.clippings"),
+            desc: t("settings.clippingsDesc"),
             control: { type: "toggle", key: "clippingsEnabled", defaultValue: DEFAULT_SETTINGS.clippingsEnabled },
           },
-          { name: "Clippings folder", control: { type: "text", key: "clippingsFolder", defaultValue: DEFAULT_SETTINGS.clippingsFolder } },
-          { name: "Summary property", control: { type: "text", key: "clippingsProperty", defaultValue: DEFAULT_SETTINGS.clippingsProperty } },
+          { name: t("settings.clippingsFolder"), control: { type: "text", key: "clippingsFolder", defaultValue: DEFAULT_SETTINGS.clippingsFolder } },
+          { name: t("settings.clippingsProperty"), control: { type: "text", key: "clippingsProperty", defaultValue: DEFAULT_SETTINGS.clippingsProperty } },
         ],
       },
     ];
@@ -232,33 +233,33 @@ export class StudioSettingTab extends PluginSettingTab {
   private cliPathRow(setting: Setting) {
     const s = this.plugin.settings;
     setting
-      .setName("CLI path")
-      .setDesc("Detected automatically. The npm shim is resolved to the native executable it launches.")
-      .addText((t) =>
-        t
-          .setPlaceholder("auto")
+      .setName(t("settings.cliPath"))
+      .setDesc(t("settings.cliPathDesc"))
+      .addText((tx) =>
+        tx
+          .setPlaceholder(t("settings.cliPathPlaceholder"))
           .setValue(s.claudePath)
           .onChange((v) => void this.setControlValue("claudePath", v)),
       )
       .addButton((b) =>
-        b.setButtonText("Detect").onClick(async () => {
+        b.setButtonText(t("settings.detect")).onClick(async () => {
           const found = await detectClaude();
-          if (!found) return new Notice("Claude Code CLI not found. Install it, then run `claude` once to log in.");
+          if (!found) return new Notice(t("settings.cliNotFound"));
           await this.setControlValue("claudePath", found);
           this.refresh();
         }),
       )
       .addButton((b) =>
         b
-          .setButtonText("Test")
+          .setButtonText(t("settings.test"))
           .setCta()
           .onClick(async () => {
             try {
               const v = await claudeVersion(this.plugin.claudePath());
-              setting.setDesc(`Connected: ${v}`);
-              new Notice(`Claude Studio: ${v}`);
+              setting.setDesc(t("settings.connected", { version: v }));
+              new Notice(t("notice.cliVersion", { version: v, path: this.plugin.claudePath() }));
             } catch (e) {
-              setting.setDesc(`Failed: ${(e as Error).message}`);
+              setting.setDesc(t("settings.failed", { error: (e as Error).message }));
             }
           }),
       );
@@ -295,19 +296,19 @@ export class StudioSettingTab extends PluginSettingTab {
     if (!c) return;
     const value = this.getControlValue(c.key);
     const text = typeof value === "string" || typeof value === "number" ? String(value) : "";
-    if (c.type === "toggle") setting.addToggle((t) => t.setValue(value === true).onChange((v) => void this.setControlValue(c.key, v)));
+    if (c.type === "toggle") setting.addToggle((tx) => tx.setValue(value === true).onChange((v) => void this.setControlValue(c.key, v)));
     else if (c.type === "textarea")
-      setting.addTextArea((t) => {
-        t.setValue(text).onChange((v) => void this.setControlValue(c.key, v));
-        t.inputEl.rows = c.rows ?? 5;
+      setting.addTextArea((tx) => {
+        tx.setValue(text).onChange((v) => void this.setControlValue(c.key, v));
+        tx.inputEl.rows = c.rows ?? 5;
       });
     else if (c.type === "number")
-      setting.addText((t) =>
-        t.setValue(text).onChange((v) => {
+      setting.addText((tx) =>
+        tx.setValue(text).onChange((v) => {
           const n = Number(v);
           if (v.trim() !== "" && Number.isInteger(n) && n >= (c.min ?? 0)) void this.setControlValue(c.key, n);
         }),
       );
-    else if (c.type === "text") setting.addText((t) => t.setValue(text).onChange((v) => void this.setControlValue(c.key, v)));
+    else if (c.type === "text") setting.addText((tx) => tx.setValue(text).onChange((v) => void this.setControlValue(c.key, v)));
   }
 }

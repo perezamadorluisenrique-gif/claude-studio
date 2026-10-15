@@ -1,4 +1,5 @@
 import { App, Events, normalizePath } from "obsidian";
+import { t } from "./i18n";
 import type { Core } from "./core";
 import type { RateLimitInfo } from "./runner";
 
@@ -55,7 +56,7 @@ export class UsageStore extends Events {
     this.checking = true;
     this.trigger("changed");
     try {
-      await this.core.complete({ prompt: "ok", model: "fast", tools: [], persist: false, label: "Checking usage" });
+      await this.core.complete({ prompt: "ok", model: "fast", tools: [], persist: false, label: t("usage.checkingLabel") });
     } finally {
       this.checking = false;
       this.trigger("changed");

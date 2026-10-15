@@ -4,6 +4,10 @@ The release workflow uses the section named after the version being released
 as the release description, so every version needs one. `npm version <x.y.z>`
 renames the `Unreleased` heading below to that version.
 
+## 0.1.2
+
+- The interface is translated into Simplified Chinese, Japanese, Korean, Spanish, German, French, Brazilian Portuguese and Russian, following Obsidian's language setting; English stays the fallback.
+
 ## 0.1.1
 
 - Obsidian's directory review: the AI palette no longer ships a default hotkey (assign one in Settings → Hotkeys), the settings use Obsidian 1.13's declarative settings so they appear in settings search, and clearing the history or reverting a created note asks in an Obsidian dialog instead of the system one.

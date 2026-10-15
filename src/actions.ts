@@ -1,4 +1,5 @@
 import { ICON } from "./icon";
+import { t } from "./i18n";
 import { Editor, MarkdownView, Notice, TFile, normalizePath } from "obsidian";
 import type { EditorView } from "@codemirror/view";
 import type ClaudeStudio from "./main";
@@ -20,7 +21,7 @@ export interface ActiveNote {
 export function freeAction(input: string, hasSelection: boolean): Action {
   return {
     id: "free",
-    name: "Ask Claude",
+    name: t("action.askClaude"),
     icon: ICON,
     group: "",
     model: "write",
@@ -38,7 +39,7 @@ export function freeAction(input: string, hasSelection: boolean): Action {
 const chipsLabel = (g: Gathered) =>
   g.chips
     .filter((c) => c.on && c.kind !== "profile")
-    .map((c) => (c.kind === "selection" ? "selection" : c.kind === "cursor" ? "cursor" : c.label))
+    .map((c) => (c.kind === "selection" ? t("chip.selectionShort") : c.kind === "cursor" ? t("chip.cursorShort") : c.label))
     .join(" · ");
 
 export class ActionRunner {
@@ -58,9 +59,9 @@ export class ActionRunner {
   async run(action: Action, opts: { input?: string; gathered?: Gathered } = {}) {
     const note = this.active();
     const needsEditor = action.output === "replace" || action.output === "below";
-    if (needsEditor && !note) return new Notice("Open a note in editing mode first.");
+    if (needsEditor && !note) return new Notice(t("notice.openNoteEditing"));
     if (action.scope === "selection" && note && !note.editor.getSelection().trim() && !opts.gathered?.chips.some((c) => c.kind === "selection"))
-      return new Notice(`"${action.name}" works on selected text. Select something first.`);
+      return new Notice(t("notice.needsSelection", { name: action.name }));
 
     let g: Gathered;
     try {
@@ -98,24 +99,24 @@ export class ActionRunner {
           icon: action.icon,
           spec,
           sourcePath: g.file?.path ?? "",
-          actions: note ? [{ label: "Insert below", cta: true, run: (t) => this.insertBelow(note, t) }] : [],
+          actions: note ? [{ label: t("inline.insertBelow"), cta: true, run: (t) => this.insertBelow(note, t) }] : [],
           onDone: (text, r) =>
             void this.plugin.history.add({ action: action.name, file: g.file?.path, model: action.model, costUsd: r?.costUsd ?? 0, durationMs: r?.durationMs ?? 0, status: "shown", prompt, result: text }),
         }).open();
         return;
       }
       case "note": {
-        if (!g.file) return new Notice("Open a note first.");
+        if (!g.file) return new Notice(t("notice.openNote"));
         return this.rewriteNote(g.file, action.name, spec);
       }
       case "new-note":
         return this.toNewNote(action.name, spec, g.file);
       default:
         if (action.output.startsWith("property:")) {
-          if (!g.file) return new Notice("Open a note first.");
+          if (!g.file) return new Notice(t("notice.openNote"));
           return this.toProperty(g.file, action.output.slice("property:".length), action.name, spec);
         }
-        new Notice(`Unknown output "${action.output}" in ${action.path}`);
+        new Notice(t("notice.unknownOutput", { output: action.output, path: action.path }));
     }
   }
 
@@ -145,10 +146,10 @@ export class ActionRunner {
       title: `${title} · ${file.basename}`,
       before,
       after: out,
-      warning: newBroken.length ? `New links to notes that don't exist: ${newBroken.join(", ")}` : undefined,
+      warning: newBroken.length ? t("diff.newBrokenLinks", { links: newBroken.join(", ") }) : undefined,
     }).open_();
     if (!ok) return;
-    if ((await this.readCurrent(file)) !== before) return new Notice("The note changed while Claude was working. Nothing was applied.");
+    if ((await this.readCurrent(file)) !== before) return new Notice(t("notice.noteChanged"));
     await this.applyWholeNote(file, out);
     await this.plugin.history.add({ action: title, file: file.path, model: spec.model ?? "", costUsd: 0, durationMs: 0, status: "applied", prompt: spec.prompt, result: out, before, after: out });
   }
@@ -207,7 +208,7 @@ export class ActionRunner {
       await this.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => (fm[prop] = out));
       const after = await this.app.vault.read(file);
       await this.plugin.history.add({ action: title, file: file.path, model: spec.model ?? "", costUsd: 0, durationMs: 0, status: "applied", prompt: spec.prompt, result: out, before, after });
-      new Notice(`${title}: saved to "${prop}"`);
+      new Notice(t("notice.savedToProperty", { title, property: prop }));
     } catch (e) {
       new Notice((e as Error).message);
     } finally {
