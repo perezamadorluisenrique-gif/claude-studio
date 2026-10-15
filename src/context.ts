@@ -32,8 +32,12 @@ export function findHub(app: App, file: TFile, hubFolder: string): TFile | null 
   const root = hubFolder.replace(/\/?$/, "/");
   if (file.path.startsWith(root)) return null;
   const links = app.metadataCache.resolvedLinks;
-  for (const target of Object.keys(links[file.path] ?? {})) if (target.startsWith(root)) return app.vault.getAbstractFileByPath(target) as TFile;
-  for (const [src, targets] of Object.entries(links)) if (src.startsWith(root) && targets[file.path]) return app.vault.getAbstractFileByPath(src) as TFile;
+  const asFile = (path: string) => {
+    const f = app.vault.getAbstractFileByPath(path);
+    return f instanceof TFile ? f : null;
+  };
+  for (const target of Object.keys(links[file.path] ?? {})) if (target.startsWith(root)) return asFile(target);
+  for (const [src, targets] of Object.entries(links)) if (src.startsWith(root) && targets[file.path]) return asFile(src);
   return null;
 }
 

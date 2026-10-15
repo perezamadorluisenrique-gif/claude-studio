@@ -1,6 +1,7 @@
 import { ItemView, Notice, TFile, WorkspaceLeaf, setIcon } from "obsidian";
 import type ClaudeStudio from "../main";
 import type { HistoryEntry } from "../history";
+import { ConfirmModal } from "./confirm";
 import { DiffModal } from "./diff";
 import { clock } from "../time";
 
@@ -47,7 +48,13 @@ export class HistoryView extends ItemView {
     const clear = head.createEl("button", { cls: "clickable-icon", attr: { "aria-label": "Clear history" } });
     setIcon(clear, "trash-2");
     clear.onclick = async () => {
-      if (!confirm("Clear the whole Claude Studio run history? Snapshots used for revert are deleted too.")) return;
+      const ok = await new ConfirmModal(this.app, {
+        title: "Clear run history",
+        message: "Clear the whole Claude Studio run history? Snapshots used for revert are deleted too.",
+        confirmLabel: "Clear history",
+        danger: true,
+      }).ask();
+      if (!ok) return;
       await this.plugin.history.clear();
     };
     this.listEl = root.createDiv({ cls: "cs-history-list" });
@@ -120,7 +127,13 @@ export class HistoryView extends ItemView {
     const changedSince = current !== e.after;
     // A new note revert means deleting it; ask explicitly.
     if (e.before === "") {
-      if (!confirm(`Delete "${file.basename}", the note this run created?`)) return;
+      const ok = await new ConfirmModal(this.app, {
+        title: "Delete created note",
+        message: `Delete "${file.basename}", the note this run created?`,
+        confirmLabel: "Delete note",
+        danger: true,
+      }).ask();
+      if (!ok) return;
       await this.app.fileManager.trashFile(file);
       await this.plugin.history.update(e.id, { status: "reverted" });
       return;
