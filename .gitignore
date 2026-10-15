@@ -1,0 +1,10 @@
+node_modules/
+main.js
+data.json
+*.log
+.DS_Store
+release-notes.md
+# Run history, chats and usage snapshots the plugin keeps next to data.json.
+history.json
+chats.json
+usage.json
