@@ -1,4 +1,5 @@
 import { ICON, registerIcon } from "./icon";
+import { t } from "./i18n";
 import { MarkdownView, Menu, Notice, Plugin, TAbstractFile, TFile, WorkspaceLeaf, normalizePath, setIcon } from "obsidian";
 import { Core } from "./core";
 import { ContextBuilder, type Gathered } from "./context";
@@ -51,7 +52,7 @@ export default class ClaudeStudio extends Plugin {
     this.registerView(USAGE_VIEW, (leaf) => new UsageView(leaf, this));
     this.registerEditorExtension([inlineExtension(), ghostExtension(), bubbleExtension(this)]);
     this.addSettingTab(new StudioSettingTab(this.app, this));
-    this.addRibbonIcon(ICON, "Claude Studio chat", () => this.openChat());
+    this.addRibbonIcon(ICON, t("ribbon.chat"), () => this.openChat());
     this.setupStatusBar();
     this.registerCommands();
     this.registerEditorMenu();
@@ -74,7 +75,7 @@ export default class ClaudeStudio extends Plugin {
       const lib = normalizePath(this.settings.libraryFolder);
       if (!this.settings.starterInstalled && !this.app.vault.getAbstractFileByPath(lib)) {
         const r = await installStarter(this.app, lib);
-        new Notice(`Claude Studio: added ${r.created.length} editable actions and profiles in ${lib}/`);
+        new Notice(t("notice.starterAdded", { count: r.created.length, folder: lib }));
       }
       if (!this.settings.starterInstalled) {
         this.settings.starterInstalled = true;
@@ -150,8 +151,8 @@ export default class ClaudeStudio extends Plugin {
       el.toggleClass("is-running", running.length > 0);
       setIcon(el.createSpan({ cls: "cs-status-icon" }), ICON);
       if (running.length) {
-        el.createSpan({ text: running.length > 1 ? `${running.length} running` : running[0] });
-        el.setAttr("aria-label", "Click to stop");
+        el.createSpan({ text: running.length > 1 ? t("statusBar.running", { count: running.length }) : running[0] });
+        el.setAttr("aria-label", t("statusBar.clickToStop"));
       } else el.setAttr("aria-label", "Claude Studio");
     };
     el.onclick = () => (this.core.running().length ? this.core.stopAll() : new Palette(this.app, this).open());
@@ -172,8 +173,8 @@ export default class ClaudeStudio extends Plugin {
         u.createSpan({ text: `${Math.round(w.utilization * 100)}%` });
         const lvl = usageLevel(w.utilization);
         if (lvl !== "ok") u.addClass(`is-${lvl}`);
-        u.setAttr("aria-label", "Claude session usage (5-hour window) · click for details");
-      } else u.setAttr("aria-label", "Claude usage limits");
+        u.setAttr("aria-label", t("statusBar.usageSession"));
+      } else u.setAttr("aria-label", t("statusBar.usageLimits"));
     };
     this.registerEvent(this.usage.on("changed", renderUsage));
     this.registerInterval(window.setInterval(renderUsage, 60_000));
@@ -181,24 +182,24 @@ export default class ClaudeStudio extends Plugin {
   }
 
   private registerCommands() {
-    this.addCommand({ id: "open-palette", name: "Open AI palette", icon: ICON, callback: () => new Palette(this.app, this).open() });
-    this.addCommand({ id: "open-chat", name: "Open chat", icon: "message-circle", callback: () => this.openChat() });
-    this.addCommand({ id: "open-history", name: "Open run history", icon: "history", callback: () => this.openHistory() });
-    this.addCommand({ id: "open-usage", name: "Show usage limits", icon: "gauge", callback: () => this.openUsage() });
-    this.addCommand({ id: "continue-writing", name: "Continue writing (ghost text, Tab to accept)", icon: "pen-line", editorCallback: () => void suggestContinuation(this) });
+    this.addCommand({ id: "open-palette", name: t("command.palette"), icon: ICON, callback: () => new Palette(this.app, this).open() });
+    this.addCommand({ id: "open-chat", name: t("command.chat"), icon: "message-circle", callback: () => this.openChat() });
+    this.addCommand({ id: "open-history", name: t("command.history"), icon: "history", callback: () => this.openHistory() });
+    this.addCommand({ id: "open-usage", name: t("command.usage"), icon: "gauge", callback: () => this.openUsage() });
+    this.addCommand({ id: "continue-writing", name: t("command.continue"), icon: "pen-line", editorCallback: () => void suggestContinuation(this) });
     this.addCommand({
       id: "ask-selection",
-      name: "Ask in chat about the selection",
+      name: t("command.askSelection"),
       icon: "message-circle-question",
       editorCallback: (editor) => {
         const sel = editor.getSelection();
-        if (!sel.trim()) return new Notice("Select some text first.");
+        if (!sel.trim()) return new Notice(t("notice.selectFirst"));
         void this.openChat(`Explícame este fragmento en el contexto de mis notas:\n\n> ${sel.split("\n").join("\n> ")}`);
       },
     });
     this.addCommand({
       id: "suggest-tags",
-      name: "Suggest tags and categories",
+      name: t("command.suggestTags"),
       icon: "tags",
       checkCallback: (checking) => {
         const f = this.app.workspace.getActiveFile();
@@ -207,33 +208,33 @@ export default class ClaudeStudio extends Plugin {
         return true;
       },
     });
-    this.addCommand({ id: "extract-to-note", name: "Extract selection to a new note", icon: "file-output", editorCallback: () => void extractToNote(this) });
-    this.addCommand({ id: "daily-recap", name: "Recap today", icon: "calendar", callback: () => void weeklyRecap(this, 1) });
-    this.addCommand({ id: "weekly-recap", name: "Recap the last 7 days", icon: "calendar-range", callback: () => void weeklyRecap(this, 7) });
-    this.addCommand({ id: "carry-over-tasks", name: "Carry open tasks into today's note", icon: "list-checks", callback: () => void carryOverTasks(this) });
-    this.addCommand({ id: "create-base", name: "Create a Base from a description", icon: "table", callback: () => createBase(this) });
-    this.addCommand({ id: "checklist-to-hub", name: "Send tasks to the project hub", icon: "folder-kanban", editorCallback: () => void checklistToHub(this) });
-    this.addCommand({ id: "project-status", name: "Project status from hub and related notes", icon: "activity", callback: () => void projectStatus(this) });
-    this.addCommand({ id: "stop", name: "Stop running requests", icon: "square", callback: () => this.core.stopAll() });
+    this.addCommand({ id: "extract-to-note", name: t("command.extract"), icon: "file-output", editorCallback: () => void extractToNote(this) });
+    this.addCommand({ id: "daily-recap", name: t("command.recapToday"), icon: "calendar", callback: () => void weeklyRecap(this, 1) });
+    this.addCommand({ id: "weekly-recap", name: t("command.recapWeek"), icon: "calendar-range", callback: () => void weeklyRecap(this, 7) });
+    this.addCommand({ id: "carry-over-tasks", name: t("command.carryOver"), icon: "list-checks", callback: () => void carryOverTasks(this) });
+    this.addCommand({ id: "create-base", name: t("command.createBase"), icon: "table", callback: () => createBase(this) });
+    this.addCommand({ id: "checklist-to-hub", name: t("command.checklistToHub"), icon: "folder-kanban", editorCallback: () => void checklistToHub(this) });
+    this.addCommand({ id: "project-status", name: t("command.projectStatus"), icon: "activity", callback: () => void projectStatus(this) });
+    this.addCommand({ id: "stop", name: t("command.stop"), icon: "square", callback: () => this.core.stopAll() });
     this.addCommand({
       id: "install-starter",
-      name: "Install starter actions and profiles (missing files only)",
+      name: t("command.installStarter"),
       icon: "download",
       callback: async () => {
         const r = await installStarter(this.app, normalizePath(this.settings.libraryFolder));
-        new Notice(`Claude Studio: ${r.created.length} created, ${r.skipped.length} already there`);
+        new Notice(t("notice.starterInstalled", { created: r.created.length, skipped: r.skipped.length }));
         await this.library.load();
       },
     });
     this.addCommand({
       id: "test-connection",
-      name: "Test the Claude Code connection",
+      name: t("command.testConnection"),
       icon: "plug",
       callback: async () => {
         try {
-          new Notice(`Claude Studio: ${await claudeVersion(this.claudePath())} at ${this.claudePath()}`);
+          new Notice(t("notice.cliVersion", { version: await claudeVersion(this.claudePath()), path: this.claudePath() }));
         } catch (e) {
-          new Notice(`Claude Studio: CLI not reachable (${(e as Error).message})`);
+          new Notice(t("notice.cliUnreachable", { error: (e as Error).message }));
         }
       },
     });
@@ -258,16 +259,16 @@ export default class ClaudeStudio extends Plugin {
         menu.addItem((item) => {
           item.setTitle("Claude Studio").setIcon(ICON).setSection("action");
           const sub = (item as unknown as { setSubmenu(): Menu }).setSubmenu();
-          sub.addItem((i) => i.setTitle("Ask Claude…").setIcon(ICON).onClick(() => new Palette(this.app, this).open()));
+          sub.addItem((i) => i.setTitle(t("menu.ask")).setIcon(ICON).onClick(() => new Palette(this.app, this).open()));
           if (hasSel) {
             for (const a of this.library.actions.filter((x) => x.scope === "selection"))
               sub.addItem((i) => i.setTitle(a.name).setIcon(a.icon).onClick(() => void this.actions.run(a)));
             sub.addSeparator();
-            sub.addItem((i) => i.setTitle("Extract to new note").setIcon("file-output").onClick(() => void extractToNote(this)));
+            sub.addItem((i) => i.setTitle(t("menu.extract")).setIcon("file-output").onClick(() => void extractToNote(this)));
           } else {
-            sub.addItem((i) => i.setTitle("Continue writing").setIcon("pen-line").onClick(() => void suggestContinuation(this)));
+            sub.addItem((i) => i.setTitle(t("menu.continue")).setIcon("pen-line").onClick(() => void suggestContinuation(this)));
           }
-          sub.addItem((i) => i.setTitle("Suggest tags").setIcon("tags").onClick(() => {
+          sub.addItem((i) => i.setTitle(t("menu.suggestTags")).setIcon("tags").onClick(() => {
             const f = this.app.workspace.getActiveFile();
             if (f) void suggestTags(this, f);
           }));

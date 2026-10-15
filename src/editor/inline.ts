@@ -1,4 +1,5 @@
 import { App, Component, MarkdownRenderer, Notice, TFile, setIcon } from "obsidian";
+import { t } from "../i18n";
 import { EditorState, Prec, StateEffect, StateField, type Extension } from "@codemirror/state";
 import { Decoration, EditorView, WidgetType, keymap, type DecorationSet } from "@codemirror/view";
 import type ClaudeStudio from "../main";
@@ -165,17 +166,17 @@ export class InlineSession {
     const foot = el.createDiv({ cls: "cs-card-foot" });
     const ask = foot.createDiv({ cls: "cs-card-ask" });
     setIcon(ask.createSpan({ cls: "cs-card-ask-icon" }), "corner-down-right");
-    this.input = ask.createEl("input", { type: "text", placeholder: "Tell Claude what to change…" });
+    this.input = ask.createEl("input", { type: "text", placeholder: t("inline.placeholder") });
     this.input.addEventListener("keydown", (e) => this.onKey(e));
 
     const btns = foot.createDiv({ cls: "cs-card-btns" });
-    const primaryLabel = this.req.mode === "replace" && this.hasRange ? "Replace" : "Insert";
+    const primaryLabel = this.req.mode === "replace" && this.hasRange ? t("inline.replace") : t("inline.insert");
     this.primary = btns.createEl("button", { cls: "mod-cta", text: primaryLabel });
     this.primary.createSpan({ cls: "cs-kbd", text: "↵" });
     this.primary.onclick = () => this.accept(this.req.mode);
     if (this.hasRange) {
       const other = this.req.mode === "replace" ? "below" : "replace";
-      this.secondary = btns.createEl("button", { text: other === "below" ? "Insert below" : "Replace" });
+      this.secondary = btns.createEl("button", { text: other === "below" ? t("inline.insertBelow") : t("inline.replace") });
       this.secondary.createSpan({ cls: "cs-kbd", text: "⇧↵" });
       this.secondary.onclick = () => this.accept(other);
     }
@@ -185,12 +186,12 @@ export class InlineSession {
       b.onclick = fn;
       return b;
     };
-    iconBtn("copy", "Copy", () => {
+    iconBtn("copy", t("common.copy"), () => {
       void navigator.clipboard.writeText(this.finalText());
-      new Notice("Copied");
+      new Notice(t("common.copied"));
     });
-    iconBtn("rotate-ccw", "Try again (Alt+R)", () => this.retry());
-    iconBtn("x", "Discard (Esc)", () => this.discard());
+    iconBtn("rotate-ccw", t("inline.retry"), () => this.retry());
+    iconBtn("x", t("inline.discard"), () => this.discard());
     return el;
   }
 
@@ -220,7 +221,7 @@ export class InlineSession {
     this.status.empty();
     if (busy) {
       this.status.createSpan({ cls: "cs-dots" });
-      const stop = this.status.createEl("button", { cls: "cs-link-btn", text: "Stop" });
+      const stop = this.status.createEl("button", { cls: "cs-link-btn", text: t("inline.stop") });
       stop.onclick = () => this.handle?.cancel();
     } else if (this.result) {
       const r = this.result;
@@ -269,7 +270,7 @@ export class InlineSession {
             this.checkLinks();
           } else if (this.result?.isError) {
             this.body.empty();
-            this.body.createDiv({ cls: "cs-card-error", text: this.result.text || "Claude returned an error." });
+            this.body.createDiv({ cls: "cs-card-error", text: this.result.text || t("error.claudeError") });
           }
           this.setBusy(false);
           if (!this.result) this.status.setText(`${((Date.now() - t0) / 1000).toFixed(1)}s`);
@@ -311,9 +312,9 @@ export class InlineSession {
     this.warn.show();
     setIcon(this.warn.createSpan({ cls: "cs-warn-icon" }), "unlink");
     this.warn.createSpan({
-      text: `${this.broken.length === 1 ? "1 link points" : `${this.broken.length} links point`} to notes that don't exist: ${this.broken.join(", ")}`,
+      text: this.broken.length === 1 ? t("inline.brokenLinks.one", { links: this.broken.join(", ") }) : t("inline.brokenLinks.other", { count: this.broken.length, links: this.broken.join(", ") }),
     });
-    const fix = this.warn.createEl("button", { cls: "cs-link-btn", text: "Unlink them" });
+    const fix = this.warn.createEl("button", { cls: "cs-link-btn", text: t("inline.unlink") });
     fix.onclick = () => {
       const set = new Set(this.broken);
       this.text = unlink(this.text, (t) => set.has(t));

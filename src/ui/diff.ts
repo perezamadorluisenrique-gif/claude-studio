@@ -1,4 +1,5 @@
 import { App, Modal, setIcon } from "obsidian";
+import { t } from "../i18n";
 import { diffLines, type DiffOp } from "../util";
 
 const CONTEXT = 3;
@@ -42,12 +43,12 @@ export class DiffModal extends Modal {
     }
 
     const box = this.contentEl.createDiv({ cls: "cs-diff" });
-    if (!added && !removed) box.createDiv({ cls: "cs-diff-empty", text: "No changes." });
+    if (!added && !removed) box.createDiv({ cls: "cs-diff-empty", text: t("diff.noChanges") });
     else this.renderOps(box, ops);
 
     const btns = this.contentEl.createDiv({ cls: "cs-result-btns" });
-    btns.createEl("button", { text: "Cancel" }).onclick = () => this.finish(false);
-    const apply = btns.createEl("button", { cls: "mod-cta", text: this.opts.applyLabel ?? "Apply" });
+    btns.createEl("button", { text: t("common.cancel") }).onclick = () => this.finish(false);
+    const apply = btns.createEl("button", { cls: "mod-cta", text: this.opts.applyLabel ?? t("common.apply") });
     apply.disabled = !added && !removed;
     apply.onclick = () => this.finish(true);
   }
@@ -60,7 +61,7 @@ export class DiffModal extends Modal {
     };
     let hidden = 0;
     const flush = () => {
-      if (hidden) box.createDiv({ cls: "cs-diff-gap", text: `⋯ ${hidden} unchanged line${hidden === 1 ? "" : "s"}` });
+      if (hidden) box.createDiv({ cls: "cs-diff-gap", text: hidden === 1 ? t("diff.unchanged.one") : t("diff.unchanged.other", { count: hidden }) });
       hidden = 0;
     };
     ops.forEach((o, i) => {

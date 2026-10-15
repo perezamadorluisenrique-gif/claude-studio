@@ -1,4 +1,5 @@
 import { App, Editor, TFile, getAllTags } from "obsidian";
+import { t } from "./i18n";
 import type { Core } from "./core";
 import type { Library, Profile, Scope } from "./library";
 import { fillTemplate, stripFrontmatter, truncate } from "./util";
@@ -54,7 +55,7 @@ export class ContextBuilder {
     let range: Gathered["range"] = null;
 
     if (file && this.core.isExcluded(file)) {
-      throw new Error(`"${file.basename}" is on the never-send list.`);
+      throw new Error(t("notice.neverSendNamed", { name: file.basename }));
     }
 
     if (editor) {
@@ -63,7 +64,7 @@ export class ContextBuilder {
       range = { from, to };
       const sel = editor.getSelection();
       if (sel.trim()) {
-        chips.push({ id: "selection", kind: "selection", label: `Selection · ${sel.length} chars`, icon: "text-cursor-input", text: sel, on: true });
+        chips.push({ id: "selection", kind: "selection", label: t("chip.selection", { count: sel.length }), icon: "text-cursor-input", text: sel, on: true });
       } else {
         const doc = editor.getValue();
         const half = Math.floor(s.contextChars / 2);
@@ -72,7 +73,7 @@ export class ContextBuilder {
         chips.push({
           id: "cursor",
           kind: "cursor",
-          label: "Around cursor",
+          label: t("chip.cursor"),
           icon: "text-cursor",
           text: `${before}⟦CURSOR⟧${after}`,
           on: scope !== "note",
@@ -95,14 +96,14 @@ export class ContextBuilder {
       const a = raw.indexOf(SNAP_A);
       const b = raw.indexOf(SNAP_B);
       if (a >= 0 && b > a) {
-        chips.push({ id: "snap", kind: "snap", label: "Snap range", icon: "bookmark", text: raw.slice(a + SNAP_A.length, b).trim(), on: false });
+        chips.push({ id: "snap", kind: "snap", label: t("chip.snap"), icon: "bookmark", text: raw.slice(a + SNAP_A.length, b).trim(), on: false });
       }
 
       const hub = findHub(this.app, file, s.hubFolder);
       if (hub && !this.core.isExcluded(hub)) {
         const text = stripFrontmatter(await this.app.vault.cachedRead(hub));
         // Off for selection edits: background about the whole project pulls short rewrites off target.
-        chips.push({ id: "hub", kind: "hub", label: `Hub · ${hub.basename}`, icon: "folder-kanban", text: truncate(text, s.linkedNoteChars * 2), path: hub.path, on: scope !== "selection" });
+        chips.push({ id: "hub", kind: "hub", label: t("chip.hub", { name: hub.basename }), icon: "folder-kanban", text: truncate(text, s.linkedNoteChars * 2), path: hub.path, on: scope !== "selection" });
       }
 
       const outgoing = Object.keys(this.app.metadataCache.resolvedLinks[file.path] ?? {})

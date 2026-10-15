@@ -1,4 +1,5 @@
 import { Notice, TFile, normalizePath } from "obsidian";
+import { t } from "./i18n";
 import type ClaudeStudio from "./main";
 import { stripFrontmatter, truncate } from "./util";
 import { Palette } from "./ui/palette";
@@ -101,7 +102,7 @@ export function registerUri(plugin: ClaudeStudio) {
     const { app } = plugin;
     if (p.file) {
       const f = app.vault.getAbstractFileByPath(normalizePath(p.file.endsWith(".md") ? p.file : `${p.file}.md`));
-      if (!(f instanceof TFile)) return new Notice(`Claude Studio: no note "${p.file}"`);
+      if (!(f instanceof TFile)) return new Notice(t("notice.uriNoNote", { file: p.file }));
       await app.workspace.getLeaf(false).openFile(f, { state: { mode: "source" } });
     }
     switch (p.do) {
@@ -115,13 +116,13 @@ export function registerUri(plugin: ClaudeStudio) {
         return weeklyRecap(plugin, Number(p.days) || 7);
       case "run": {
         const a = plugin.library.byId(p.action ?? "");
-        if (!a) return new Notice(`Claude Studio: no action "${p.action}"`);
+        if (!a) return new Notice(t("notice.uriNoAction", { action: p.action }));
         // Give the editor a moment to mount after openFile.
         window.setTimeout(() => void plugin.actions.run(a, { input: p.prompt }), 150);
         return;
       }
       default:
-        new Notice(`Claude Studio: unknown do="${p.do}"`);
+        new Notice(t("notice.uriUnknown", { value: p.do }));
     }
   });
 }

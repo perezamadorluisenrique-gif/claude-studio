@@ -1,4 +1,5 @@
 import { App, FileSystemAdapter, TFile, getAllTags } from "obsidian";
+import { t } from "./i18n";
 import type { StudioSettings } from "./settings";
 import { runClaude, resolveExecutable, type RateLimitInfo, type RunCallbacks, type RunHandle, type RunRequest } from "./runner";
 import { denyRules, isExcludedPath, parsePatterns } from "./util";
@@ -113,7 +114,7 @@ export class Core {
       { stripApiKey: this.settings.stripApiKey },
     ));
     this.active.add(handle);
-    this.labels.set(handle, spec.label ?? "Working");
+    this.labels.set(handle, spec.label ?? t("work.working"));
     this.emit();
     return handle;
   }
@@ -127,8 +128,8 @@ export class Core {
       onError: (m) => (error = m),
     });
     const r = await h.done;
-    if (!r) throw new Error(error || "Claude did not return a result.");
-    if (r.isError) throw new Error(r.text || error || "Claude returned an error.");
+    if (!r) throw new Error(error || t("error.noResult"));
+    if (r.isError) throw new Error(r.text || error || t("error.claudeError"));
     return r.text || text;
   }
 

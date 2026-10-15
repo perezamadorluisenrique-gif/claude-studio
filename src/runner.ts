@@ -1,4 +1,5 @@
 import { spawn, execFile, type ChildProcessWithoutNullStreams } from "child_process";
+import { t } from "./i18n";
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
@@ -255,7 +256,7 @@ export function runClaude(
         inputTokens: m.usage?.input_tokens ?? 0,
         outputTokens: m.usage?.output_tokens ?? 0,
       };
-      if (m.subtype === "error_max_turns") r.text = "Reached the turn limit for this action.";
+      if (m.subtype === "error_max_turns") r.text = t("error.turnLimit");
       result = r;
       cb.onResult?.(r);
     }
@@ -284,9 +285,9 @@ export function runClaude(
   proc.on("close", (code) => {
     if (buf.trim()) handle(buf.trim());
     if (!result && !spawnError) {
-      if (cancelled) cb.onError?.("Stopped.");
+      if (cancelled) cb.onError?.(t("error.stopped"));
       else if (code !== 0)
-        cb.onError?.(stderr.trim() || `claude exited with code ${code}. Run \`claude\` once in a terminal to log in.`);
+        cb.onError?.(stderr.trim() || t("error.exitCode", { code: String(code) }));
     }
     cb.onClose?.();
     resolveDone(result);

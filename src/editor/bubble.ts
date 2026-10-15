@@ -1,4 +1,5 @@
 import { ICON } from "../icon";
+import { t } from "../i18n";
 import { setIcon } from "obsidian";
 import { ViewPlugin, type EditorView, type ViewUpdate } from "@codemirror/view";
 import type ClaudeStudio from "../main";
@@ -51,7 +52,7 @@ export function bubbleExtension(plugin: ClaudeStudio) {
             fn();
           });
         };
-        add(ICON, "Ask Claude", () => new Palette(plugin.app, plugin).open(), "with-text cs-bubble-ask");
+        add(ICON, t("action.askClaude"), () => new Palette(plugin.app, plugin).open(), "with-text cs-bubble-ask");
         el.createSpan({ cls: "cs-bubble-sep" });
         for (const a of plugin.library.actions.filter((x) => x.bubble && x.scope === "selection"))
           add(a.icon, a.name, () => void plugin.actions.run(a));
