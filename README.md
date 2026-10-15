@@ -8,7 +8,7 @@ Desktop only. It needs the [Claude Code CLI](https://docs.claude.com/en/docs/cla
 
 | | |
 |---|---|
-| **AI palette** · `Ctrl/Cmd+J` | Type a prompt or pick an action. The context Claude will see shows up as chips (selection, around cursor, note, project hub, linked notes, snap range, profile), and you can switch each one off. `Tab` sends the question to the vault chat instead. |
+| **AI palette** | Type a prompt or pick an action. The context Claude will see shows up as chips (selection, around cursor, note, project hub, linked notes, snap range, profile), and you can switch each one off. `Tab` sends the question to the vault chat instead. |
 | **Inline card** | Answers stream into a card under your text. `Enter` replaces (or inserts), `Shift+Enter` does the other, typing in the box refines the answer, `Alt+R` retries and `Esc` discards. Accepted edits are normal editor changes, so `Ctrl+Z` undoes them. |
 | **Link checker** | Any `[[link]]` in an answer that points to a note that doesn't exist is flagged before you accept, with a one-click *Unlink them*. |
 | **Selection toolbar** | Appears when you select text. It shows *Ask Claude* plus every action with `bubble: true`. |
@@ -62,7 +62,13 @@ URIs:
 - **Install and log in to Claude Code first.** Run `claude` once in a terminal. The plugin looks for it in the usual install locations, or you can set the path in its settings.
 - **Your notes leave your computer.** What you send (the selection, the note around the cursor, linked notes, or what Claude reads while answering in the chat) is processed by Claude through the CLI, under the terms of your own Claude plan. The plugin has no server of its own and no telemetry.
 - **Cost.** Runs use your Claude plan's limits; the history and usage views show what each run took.
-- **Files outside the vault.** To list your other vaults for the chat's read-only search, the plugin reads Obsidian's own `obsidian.json`. It only does so for the sibling-vaults setting, and the chat cannot edit those notes.
+- **Why it uses Node.js modules, and exactly what for.** The plugin's whole job is to run your own `claude` program, so it needs things Obsidian's API doesn't offer. Each use is listed here:
+  - `child_process` (shell execution): starts the `claude` command-line program for each run (`spawn`, no shell except for the Windows `claude.cmd` shim), asks it for `--version` when you press *Test*, looks for it with `where claude` (Windows) or `sh -lc "command -v claude"` (macOS/Linux) when you press *Detect*, and runs `taskkill` on Windows to stop a run you cancel.
+  - `fs` (direct filesystem access), only for these reads, none of them in your vault: checking that the `claude` program exists at its usual install paths and, for the Windows `.cmd` shim, reading that one small file to find the real `.exe`; and reading Obsidian's own `obsidian.json` to list your other vaults for the *Sibling vaults* setting. The plugin never writes outside your vault through `fs`; vault notes are always read and written through Obsidian's API.
+  - Environment and system information (`os.homedir()`, `process.platform` and the `HOME` and `APPDATA` variables): only to build those install and `obsidian.json` paths per operating system. Nothing is sent anywhere or used to identify you. The CLI process also receives a copy of your environment (so it finds its own login and `PATH`), minus `ANTHROPIC_API_KEY` and `ANTHROPIC_AUTH_TOKEN` when *Use my subscription* is on.
+- **Vault listing.** The plugin lists your notes to find the ones that link to the note you're working on, to match project hubs and profiles, to suggest tags, folders and properties, and to find your Actions and Profiles notes. File paths stay on your computer unless a note you chose as context is sent.
+- **Clipboard.** Only when you press a *Copy* button on an answer; the plugin never reads the clipboard.
+- **No default hotkey.** *Open AI palette* has no shortcut so it can't clash with yours. Assign one in **Settings → Hotkeys** (search "Claude Studio"); every action is also a command you can bind.
 - **Nothing is changed without you.** Answers are inserted only after you accept them, whole-note rewrites go through a diff first, and every applied change can be reverted from the History panel.
 
 ## Installation

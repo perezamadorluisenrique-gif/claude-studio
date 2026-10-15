@@ -181,7 +181,7 @@ export default class ClaudeStudio extends Plugin {
   }
 
   private registerCommands() {
-    this.addCommand({ id: "open-palette", name: "Open AI palette", icon: ICON, hotkeys: [{ modifiers: ["Mod"], key: "j" }], callback: () => new Palette(this.app, this).open() });
+    this.addCommand({ id: "open-palette", name: "Open AI palette", icon: ICON, callback: () => new Palette(this.app, this).open() });
     this.addCommand({ id: "open-chat", name: "Open chat", icon: "message-circle", callback: () => this.openChat() });
     this.addCommand({ id: "open-history", name: "Open run history", icon: "history", callback: () => this.openHistory() });
     this.addCommand({ id: "open-usage", name: "Show usage limits", icon: "gauge", callback: () => this.openUsage() });

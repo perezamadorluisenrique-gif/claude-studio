@@ -82,7 +82,18 @@ body.theme-dark {
   animation: cs-blink 1s steps(1) infinite;
 }
 .cs-link-btn {
-  all: unset;
+  appearance: none;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  margin: 0;
+  padding: 0;
+  height: auto;
+  min-height: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  display: inline;
   cursor: pointer;
   margin-left: 8px;
   font-size: var(--font-ui-smaller);
@@ -120,7 +131,17 @@ body.theme-dark {
   margin-right: 2px;
 }
 .cs-chip {
-  all: unset;
+  appearance: none;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  margin: 0;
+  padding: 0;
+  height: auto;
+  min-height: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -258,8 +279,8 @@ body.theme-dark {
 a.cs-broken,
 .cs-card-body a.is-unresolved.cs-broken {
   color: var(--text-error);
-  text-decoration: wavy underline;
-  text-decoration-color: color-mix(in srgb, var(--text-error) 60%, transparent);
+  text-decoration: none;
+  border-bottom: 1px dashed color-mix(in srgb, var(--text-error) 60%, transparent);
 }
 .cs-card-foot {
   display: flex;
@@ -281,12 +302,15 @@ a.cs-broken,
   width: 14px;
   height: 14px;
 }
+.cs-card-ask input,
+.cs-card-ask input:is(:hover, :focus, :focus-visible, :active) {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
 .cs-card-ask input {
   flex: 1;
   min-width: 0;
-  border: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
   padding: 4px 0;
   font-size: var(--font-ui-small);
 }
@@ -352,7 +376,17 @@ a.cs-broken,
   animation: cs-in var(--cs-dur) var(--cs-ease);
 }
 .cs-bubble-btn {
-  all: unset;
+  appearance: none;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  margin: 0;
+  padding: 0;
+  height: auto;
+  min-height: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -459,11 +493,14 @@ a.cs-broken,
   width: 20px;
   height: 20px;
 }
+.cs-palette-top input,
+.cs-palette-top input:is(:hover, :focus, :focus-visible, :active) {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
 .cs-palette-top input {
   flex: 1;
-  border: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
   font-size: 17px;
   padding: 4px 0;
 }
@@ -585,7 +622,6 @@ a.cs-broken,
   background: color-mix(in srgb, var(--color-red) 11%, transparent);
   color: var(--cs-muted);
   text-decoration: line-through;
-  text-decoration-color: color-mix(in srgb, var(--color-red) 45%, transparent);
 }
 .cs-diff-gap {
   padding: 3px 10px;
@@ -611,11 +647,11 @@ a.cs-broken,
 
 /* ---------- chat ---------- */
 
-.cs-chat,
-.cs-history {
+.workspace-leaf-content .view-content.cs-chat,
+.workspace-leaf-content .view-content.cs-history {
   display: flex;
   flex-direction: column;
-  padding: 0 !important;
+  padding: 0;
   height: 100%;
 }
 .cs-chat-head {
@@ -649,7 +685,17 @@ a.cs-broken,
   gap: 2px;
 }
 .cs-scope {
-  all: unset;
+  appearance: none;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  margin: 0;
+  padding: 0;
+  height: auto;
+  min-height: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -712,7 +758,17 @@ a.cs-broken,
   align-items: stretch;
 }
 .cs-suggestion {
-  all: unset;
+  appearance: none;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  margin: 0;
+  padding: 0;
+  height: auto;
+  min-height: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
   padding: 8px 12px;
   border-radius: var(--cs-radius-sm);
   border: 1px solid var(--cs-border);
@@ -816,12 +872,15 @@ a.cs-broken,
   border-color: var(--cs-accent-line);
   box-shadow: 0 0 0 3px var(--cs-accent-soft);
 }
+.cs-composer-row textarea,
+.cs-composer-row textarea:is(:hover, :focus, :focus-visible, :active) {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
 .cs-composer-row textarea {
   flex: 1;
   resize: none;
-  border: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
   padding: 4px 0;
   min-height: 24px;
   max-height: 220px;
@@ -829,7 +888,17 @@ a.cs-broken,
   line-height: 1.5;
 }
 .cs-send {
-  all: unset;
+  appearance: none;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  margin: 0;
+  padding: 0;
+  height: auto;
+  min-height: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -960,10 +1029,10 @@ a.cs-broken,
 
 /* ---------- usage limits ---------- */
 
-.cs-usage {
+.workspace-leaf-content .view-content.cs-usage {
   display: flex;
   flex-direction: column;
-  padding: 0 !important;
+  padding: 0;
   height: 100%;
 }
 .cs-usage-body {

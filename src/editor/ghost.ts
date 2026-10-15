@@ -23,9 +23,7 @@ class GhostWidget extends WidgetType {
     return o.text === this.text && o.loading === this.loading;
   }
   toDOM() {
-    const span = document.createElement("span");
-    span.className = "cs-ghost" + (this.loading ? " is-loading" : "");
-    span.textContent = this.text;
+    const span = createSpan({ cls: "cs-ghost" + (this.loading ? " is-loading" : ""), text: this.text });
     if (!this.loading && this.text) {
       const k = span.createSpan({ cls: "cs-ghost-hint", text: "Tab" });
       k.setAttr("aria-hidden", "true");

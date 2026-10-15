@@ -40,7 +40,7 @@ export function bubbleExtension(plugin: ClaudeStudio) {
         const end = view.coordsAtPos(sel.to);
         if (!start || !end) return;
 
-        const el = document.body.createDiv({ cls: "cs-bubble" });
+        const el = activeDocument.body.createDiv({ cls: "cs-bubble" });
         const add = (icon: string, label: string, fn: () => void, cls = "") => {
           const b = el.createEl("button", { cls: `cs-bubble-btn ${cls}`, attr: { "aria-label": label } });
           setIcon(b.createSpan(), icon);

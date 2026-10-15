@@ -42,7 +42,7 @@ class CardWidget extends WidgetType {
     return other.id === this.id;
   }
   toDOM() {
-    return sessions.get(this.id)?.el ?? document.createElement("div");
+    return sessions.get(this.id)?.el ?? createDiv();
   }
   ignoreEvent() {
     return true;
