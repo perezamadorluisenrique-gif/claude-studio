@@ -71,6 +71,7 @@ const ru: Messages = {
   "diff.unchanged.other": "⋯ неизменных строк: {count}",
 
   // Errors shown to the user
+  "error.cliNotFound": "Claude Code CLI не найден. Укажите путь к нему в настройках Claude Studio.",
   "error.noResult": "Claude не вернул результат.",
   "error.claudeError": "Claude вернул ошибку.",
   "error.turnLimit": "Достигнут лимит шагов для этого действия.",

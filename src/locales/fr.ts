@@ -71,6 +71,7 @@ const fr: Messages = {
   "diff.unchanged.other": "⋯ {count} lignes inchangées",
 
   // Errors shown to the user
+  "error.cliNotFound": "CLI Claude Code introuvable. Indiquez son chemin dans les réglages de Claude Studio.",
   "error.noResult": "Claude n’a renvoyé aucun résultat.",
   "error.claudeError": "Claude a renvoyé une erreur.",
   "error.turnLimit": "Limite de tours atteinte pour cette action.",

@@ -74,6 +74,7 @@ const en = {
   "diff.unchanged.other": "⋯ {count} unchanged lines",
 
   // Errors shown to the user
+  "error.cliNotFound": "Claude Code CLI not found. Set its path in Claude Studio settings.",
   "error.noResult": "Claude did not return a result.",
   "error.claudeError": "Claude returned an error.",
   "error.turnLimit": "Reached the turn limit for this action.",

@@ -278,7 +278,7 @@ export function runClaude(
     spawnError = true;
     cb.onError?.(
       err.code === "ENOENT"
-        ? "Claude Code CLI not found. Set its path in Claude Studio settings."
+        ? t("error.cliNotFound")
         : err.message,
     );
   });

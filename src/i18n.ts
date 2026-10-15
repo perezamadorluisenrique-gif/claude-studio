@@ -14,6 +14,7 @@ import de from './locales/de.ts';
 import en from './locales/en.ts';
 import es from './locales/es.ts';
 import fr from './locales/fr.ts';
+import it from './locales/it.ts';
 import ja from './locales/ja.ts';
 import ko from './locales/ko.ts';
 import ptBR from './locales/pt-BR.ts';
@@ -21,7 +22,7 @@ import ru from './locales/ru.ts';
 import zh from './locales/zh.ts';
 
 /** Obsidian's own codes: `zh` is Simplified Chinese, `pt-BR` Brazilian Portuguese. */
-export const LOCALES = ['en', 'zh', 'ja', 'ko', 'es', 'de', 'fr', 'pt-BR', 'ru'] as const;
+export const LOCALES = ['en', 'zh', 'ja', 'ko', 'es', 'de', 'fr', 'pt-BR', 'ru', 'it'] as const;
 export type Locale = (typeof LOCALES)[number];
 
 export type MessageKey = keyof typeof en;
@@ -33,7 +34,7 @@ type Args<K extends MessageKey> = [Placeholders<(typeof en)[K]>] extends [never]
 	? []
 	: [vars: Record<Placeholders<(typeof en)[K]>, string | number>];
 
-const CATALOGS: Record<Locale, Messages> = { en, zh, ja, ko, es, de, fr, 'pt-BR': ptBR, ru };
+const CATALOGS: Record<Locale, Messages> = { en, zh, ja, ko, es, de, fr, 'pt-BR': ptBR, ru, it };
 
 /** Exact match on one of our codes, ignoring case; anything else (`zh-TW`, `pt`, `en-GB`) is `null`. */
 export function resolveLocale(code: string | null | undefined): Locale | null {

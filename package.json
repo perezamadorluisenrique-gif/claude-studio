@@ -1,6 +1,6 @@
 {
   "name": "claude-studio",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Claude Studio for Obsidian - Notion-style AI writing, chat and vault tools powered by your local Claude Code CLI.",
   "main": "main.js",
   "scripts": {

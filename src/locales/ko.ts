@@ -71,6 +71,7 @@ const ko: Messages = {
   "diff.unchanged.other": "⋯ 변경 없는 줄 {count}개",
 
   // Errors shown to the user
+  "error.cliNotFound": "Claude Code CLI를 찾을 수 없습니다. Claude Studio 설정에서 경로를 지정하세요.",
   "error.noResult": "Claude가 결과를 반환하지 않았습니다.",
   "error.claudeError": "Claude가 오류를 반환했습니다.",
   "error.turnLimit": "이 액션의 턴 한도에 도달했습니다.",
