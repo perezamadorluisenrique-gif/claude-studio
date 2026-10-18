@@ -91,7 +91,6 @@ body.theme-dark {
   height: auto;
   min-height: 0;
   font: inherit;
-  color: inherit;
   text-align: inherit;
   display: inline;
   cursor: pointer;
@@ -133,14 +132,10 @@ body.theme-dark {
 .cs-chip {
   appearance: none;
   background: none;
-  border: 0;
   box-shadow: none;
   margin: 0;
-  padding: 0;
-  height: auto;
   min-height: 0;
   font: inherit;
-  color: inherit;
   text-align: inherit;
   display: inline-flex;
   align-items: center;
@@ -381,11 +376,8 @@ a.cs-broken,
   border: 0;
   box-shadow: none;
   margin: 0;
-  padding: 0;
-  height: auto;
   min-height: 0;
   font: inherit;
-  color: inherit;
   text-align: inherit;
   display: inline-flex;
   align-items: center;
@@ -687,14 +679,10 @@ a.cs-broken,
 .cs-scope {
   appearance: none;
   background: none;
-  border: 0;
   box-shadow: none;
   margin: 0;
-  padding: 0;
-  height: auto;
   min-height: 0;
   font: inherit;
-  color: inherit;
   text-align: inherit;
   display: inline-flex;
   align-items: center;
@@ -760,15 +748,11 @@ a.cs-broken,
 .cs-suggestion {
   appearance: none;
   background: none;
-  border: 0;
   box-shadow: none;
   margin: 0;
-  padding: 0;
   height: auto;
   min-height: 0;
   font: inherit;
-  color: inherit;
-  text-align: inherit;
   padding: 8px 12px;
   border-radius: var(--cs-radius-sm);
   border: 1px solid var(--cs-border);
@@ -889,15 +873,12 @@ a.cs-broken,
 }
 .cs-send {
   appearance: none;
-  background: none;
   border: 0;
   box-shadow: none;
   margin: 0;
   padding: 0;
-  height: auto;
   min-height: 0;
   font: inherit;
-  color: inherit;
   text-align: inherit;
   display: inline-flex;
   align-items: center;
