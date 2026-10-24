@@ -8,3 +8,5 @@ release-notes.md
 history.json
 chats.json
 usage.json
+.claude/REPO_MAP.md
+.claude/settings.local.json
