@@ -6,7 +6,7 @@ Desktop only. It needs the [Claude Code CLI](https://docs.claude.com/en/docs/cla
 
 **Interface languages:** English, 简体中文, 日本語, 한국어, Español, Deutsch, Français, Português (Brasil), Русский and Italiano, following Obsidian's language setting. A translation that reads wrong? [Open an issue](https://github.com/perezamadorluisenrique-gif/claude-studio/issues/new/choose) with the text and what it should say.
 
-![Claude Studio inline card under the selected text](docs/screenshot.png)
+![Claude Studio inline card under the selected text](https://raw.githubusercontent.com/perezamadorluisenrique-gif/claude-studio/main/docs/screenshot.png)
 
 ## What it does
 
