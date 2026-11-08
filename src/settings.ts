@@ -4,6 +4,7 @@ import * as fs from "fs";
 import * as path from "path";
 import type ClaudeStudio from "./main";
 import { claudeVersion, detectClaude } from "./runner";
+import { moreDefinitions } from "./more-link.ts";
 
 export interface StudioSettings {
   claudePath: string;
@@ -227,6 +228,7 @@ export class StudioSettingTab extends PluginSettingTab {
           { name: t("settings.clippingsProperty"), control: { type: "text", key: "clippingsProperty", defaultValue: DEFAULT_SETTINGS.clippingsProperty } },
         ],
       },
+      ...(moreDefinitions() as SettingDefinitionItem[]),
     ];
   }
 
